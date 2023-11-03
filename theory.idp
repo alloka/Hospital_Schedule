@@ -1,0 +1,84 @@
+vocabulary V {
+    type Operation:={app,tkn, tb, ch, hi} 
+    type Slot := {1..6} 
+    type Patient 
+    type Ptype:= {ped, ped_dia, adult, adult_dia}
+    type Room
+    type Priority := {1, 2, 3}
+    type Count := {1,2,3}
+    typeof:  (Patient) -> Ptype
+    Obese:(Patient)-> Bool
+    has_Operation: Patient -> Operation
+    robot:(Patient) -> Bool
+    robot_room:(Room) -> Bool
+    operation_time: (Patient) ->Count
+     book_room: Room*Patient*Slot -> Bool
+     clean_room: Room*Slot->Bool
+}
+
+theory T:V {
+//If the patient is obese then he cannot have an operation with robot
+!x in Patient: Obese(x) => ~robot(x).
+
+// A parient can have only one operation
+!x in Patient, y,z in Operation :has_Operation(x)=y&has_Operation(x)=z=>y=z.
+
+//A patient can have only one type
+~(?x in Patient, y,z in Ptype:typeof(x)=y&typeof(x)=z&y~=z).
+
+//A patient can book only one room 
+~(?x,y,z,a,c: book_room(x,y,z)&book_room(a,y,c)&x~=a).
+
+//A room can have only one patient
+~ (?x,y,z,a: book_room(x,a,z)&book_room(x,y,z)&y~=a).
+
+//The slots reserved should be consecutive
+ !x,y,z,c: book_room(x,y,z)&book_room(x,y,c)&operation_time(y)=2=>(c=z+1|z=c|z=c+1).
+!x,y,z,c: book_room(x,y,z)&book_room(x,y,c)&operation_time(y)=3=>(c=z+1|c=z+2|z=c|z=c+2|z=c+1).
+
+//The number of slots reserved should be the same to the number of hours the operation needs
+!x in Patient:#{y in Room,z in Slot : book_room(y,x,z) } =operation_time(x).
+
+ //The app and tb operations cannot be with robots
+ !x in Patient: robot(x)=> ~(has_Operation(x)=app|has_Operation(x)=tb).
+
+//Specifying the times for each operation (with and without robot)
+ !x in Patient:has_Operation(x)=app=> operation_time(x)=2.
+!x in Patient:has_Operation(x)=tb=> operation_time(x)=1.
+!x in Patient: robot(x)&has_Operation(x)=tkn=> operation_time(x)=1.
+!x in Patient:robot(x)&has_Operation(x)=ch=> operation_time(x)=2.
+ !x in Patient: robot(x)&has_Operation(x)=hi=> operation_time(x)=1.
+!x in Patient: ~robot(x)&has_Operation(x)=tkn=> operation_time(x)=2.
+!x in Patient: ~robot(x)&has_Operation(x)=ch=> operation_time(x)=3.
+!x in Patient: ~robot(x)&has_Operation(x)=hi=> operation_time(x)=2.
+
+//A room slot is available for cleaning if it is not booked
+ !x,y,z: clean_room(x,z)=>~book_room(x,y,z).
+
+ //A slot in a room is available for booking if it is not being cleaned
+!x,y,z: ~clean_room(x,z)<=book_room(x,y,z).
+
+//A room can be cleaned for only one slot
+!x in Room:#{z in Slot : clean_room(x,z) } =1.
+
+//If the operation is with robot then it should be in the room with robot 
+!x,y,z: robot(x)&book_room(y,x,z) =>robot_room(y). 
+        
+}
+
+structure S:V{
+Patient:= {Ali,Nick,Justin,Joost,Anastasia}.
+Room:= {r1,r2,r3}.
+robot_room:= {(r1)}.
+}
+
+display{
+    heading('Patient Info', `typeof,`Obese,`has_Operation).
+    heading('Operation Info', `robot,`operation_time,`robot_room).
+    heading('Schedule', `book_room,`clean_room).
+    view() = expanded.
+}
+
+procedure main() {
+    pretty_print(model_expand(T, S,max=100))
+}
