@@ -1,5 +1,5 @@
 vocabulary V {
-    type Operation:={app,tkn, tb, ch, hi} 
+    type Operation:={app,tkn, tb, ch, hi} 
     type Slot := {1..6} 
     type Patient 
     type Ptype:= {ped, ped_dia, adult, adult_dia}
@@ -41,6 +41,9 @@ theory T:V {
 
  //The app and tb operations cannot be with robots
  !x in Patient: robot(x)=> ~(has_Operation(x)=app|has_Operation(x)=tb).
+
+//Two rooms cannot be cleaned at the same slot (one cleaning team only)
+ ~(?x,y,z: clean_room(x,z)&clean_room(y,z)&x~=y).
 
 //Specifying the times for each operation (with and without robot)
  !x in Patient:has_Operation(x)=app=> operation_time(x)=2.
