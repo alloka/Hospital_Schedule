@@ -32,6 +32,11 @@ theory T:V {
 //A room can have only one patient
 ~ (?x,y,z,a: book_room(x,a,z)&book_room(x,y,z)&y~=a).
 
+// Priority for booking accodring to patient type
+~ (?x,y,z,h,a: book_room(x,a,h)&book_room(x,y,z)&y~=a&typeof(a)=ped_dia&typeof(y)~=ped_dia&z<h).
+~ (?x,y,z,h,a: book_room(x,a,h)&book_room(x,y,z)&y~=a&typeof(a)=ped&(typeof(y)=adult_dia|typeof(y)=adult)&z<h).
+~ (?x,y,z,h,a: book_room(x,a,h)&book_room(x,y,z)&y~=a&typeof(a)=adult_dia&typeof(y)=adult&z<h).
+
 //The slots reserved should be consecutive
  !x,y,z,c: book_room(x,y,z)&book_room(x,y,c)&operation_time(y)=2=>(c=z+1|z=c|z=c+1).
 !x,y,z,c: book_room(x,y,z)&book_room(x,y,c)&operation_time(y)=3=>(c=z+1|c=z+2|z=c|z=c+2|z=c+1).
