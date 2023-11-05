@@ -17,10 +17,10 @@ vocabulary V {
 }
 
 theory T:V {
-//If the patient is obese then he cannot have an operation with robot
+//If the patient is obese then he cannot have an operation with a robot
 !x in Patient: Obese(x) => ~robot(x).
 
-// A parient can have only one operation
+// A patient can have only one operation
 !x in Patient, y,z in Operation :has_Operation(x)=y&has_Operation(x)=z=>y=z.
 
 //A patient can have only one type
@@ -32,7 +32,7 @@ theory T:V {
 //A room can have only one patient
 ~ (?x,y,z,a: book_room(x,a,z)&book_room(x,y,z)&y~=a).
 
-// Priority for booking accodring to patient type
+// Priority for booking according to patient type
 ~ (?x,y,z,h,a: book_room(x,a,h)&book_room(x,y,z)&y~=a&typeof(a)=ped_dia&typeof(y)~=ped_dia&z<h).
 ~ (?x,y,z,h,a: book_room(x,a,h)&book_room(x,y,z)&y~=a&typeof(a)=ped&(typeof(y)=adult_dia|typeof(y)=adult)&z<h).
 ~ (?x,y,z,h,a: book_room(x,a,h)&book_room(x,y,z)&y~=a&typeof(a)=adult_dia&typeof(y)=adult&z<h).
@@ -69,7 +69,7 @@ theory T:V {
 //A room can be cleaned for only one slot
 !x in Room:#{z in Slot : clean_room(x,z) } =1.
 
-//If the operation is with robot then it should be in the room with robot 
+//If the operation is with a robot then it should be in the room with the robot 
 !x,y,z: robot(x)&book_room(y,x,z) =>robot_room(y). 
         
 }
