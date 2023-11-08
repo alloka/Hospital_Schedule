@@ -63,7 +63,7 @@ theory T:V {
 //A room slot is available for cleaning if it is not booked
  !x,y,z: clean_room(x,z)=>~book_room(x,y,z).
 
- //A slot in a room is available for booking if it is not being cleaned
+ //if the room is booked at a certain slot then it cannot be cleaned
 !x,y,z: ~clean_room(x,z)<=book_room(x,y,z).
 
 //A room can be cleaned for only one slot
